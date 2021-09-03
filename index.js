@@ -1,31 +1,36 @@
-const COUNTER_DEFAULT = 1205;
 const COUNTER_DISPLAY = document.getElementById('counterDisplay');
-let countDownCounter = COUNTER_DEFAULT;
+let countDownCounter = 20;
 let hasCounterBegan = false;
+let pausedCounter = true;
 let interval;
 
 function reset(){
     clearInterval(interval);
-    countDownCounter = COUNTER_DEFAULT;
+    countDownCounter = 20;
     covertSecondsToTimeDisplay();
 }
 
 function countDown(){
-// if counter began
-hasCounterBegan = !hasCounterBegan;
-if(hasCounterBegan){
-    interval = setInterval(()=>{
-        countDownCounter--;
-        covertSecondsToTimeDisplay();
-    },1000);
-}else{
-    clearInterval(interval);
-}
+// Toggle the counter
+    if(!hasCounterBegan){
+        hasCounterBegan = true;
+    }
+    pausedCounter = !pausedCounter;
+    if(!pausedCounter && hasCounterBegan){
+        interval = setInterval(()=>{
+            countDownCounter--;
+            covertSecondsToTimeDisplay();
+        },1000);
+    }else{
+        clearInterval(interval);
+    }
 
+return;
 };
+// function startCounter(){
 
 function covertSecondsToTimeDisplay(){
-if(countDownCounter <= 0 && hasCounterBegan){
+if(countDownCounter < 0 && hasCounterBegan){
     clearInterval(interval);
     return;
 }
@@ -37,6 +42,21 @@ COUNTER_DISPLAY.innerText = `${hour.toString().padStart(2,0)}:${minutes.toString
 return;
 }
 
-covertSecondsToTimeDisplay();
+function isMinuteInputValid(minuteInput){
+    if(isNaN(minuteInput) || minuteInput < 1){
+        minuteInputError.innerText = MINUTE_ERROR;
+        console.error(MINUTE_ERROR);
+        return false;
+    }
+    return true;
+    
+}
+
+function setTimerValue(){
+        countDownCounter = countDownCounter * 60;
+        covertSecondsToTimeDisplay();
+}
+
+setTimerValue();
 document.getElementById('counterBtn').addEventListener('click',countDown);
 document.getElementById('restartBtn').addEventListener('click',reset);
