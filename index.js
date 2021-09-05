@@ -1,73 +1,82 @@
-const COUNTER_DISPLAY = document.getElementById('counterDisplay');
-const minuteInput = document.getElementById('minuteInput');
-const MINUTE_ERROR = 'Time is not valid';
+const MINUTE_ERROR = "Time is not valid";
+
+// Elements
+const counterDisplayElement = document.getElementById("counterDisplay");
+const minuteInputElement = document.getElementById("minuteInput");
+const startStopBtnElement = document.getElementById("startStopBtn");
+const resetBtnElement = document.getElementById("resetBtn");
+
+// let vars
 let countDownCounter = 0;
 let hasPomodoroStart = false;
 let isPomodoroCounterPaused = true;
 let pomodoroInterval;
 
 const SetPomodoroTimerValue = () => {
-    countDownCounter = countDownCounter * 60;
-    CovertSecondsToTimeDisplay();
-}
+  countDownCounter = countDownCounter * 60;
+  CovertSecondsToTimeDisplay();
+};
 
 const Reset = () => {
-    clearInterval(pomodoroInterval);
-    countDownCounter = 20;
-    CovertSecondsToTimeDisplay();
-}
+  clearInterval(pomodoroInterval);
+  hasPomodoroStart = false;
+  countDownCounter = 0;
+  CovertSecondsToTimeDisplay();
+};
 
 const StartPomodoro = () => {
-// Toggle the counter
-    if(!hasPomodoroStart){
-        hasPomodoroStart = true;
-    }
-    isPomodoroCounterPaused = !isPomodoroCounterPaused;
-    if(!isPomodoroCounterPaused && hasPomodoroStart){
-        pomodoroInterval = setInterval(()=>{
-            countDownCounter--;
-            CovertSecondsToTimeDisplay();
-        },1000);
-    }else{
-        clearInterval(pomodoroInterval);
-    }
+  // Toggle the counter
+  if (!hasPomodoroStart) {
+    hasPomodoroStart = true;
+  }
+  isPomodoroCounterPaused = !isPomodoroCounterPaused;
+  if (!isPomodoroCounterPaused && hasPomodoroStart) {
+    pomodoroInterval = setInterval(() => {
+      countDownCounter--;
+      CovertSecondsToTimeDisplay();
+    }, 1000);
+  } else {
+    clearInterval(pomodoroInterval);
+  }
 
-return;
+  return;
 };
 
 const CovertSecondsToTimeDisplay = () => {
-if(countDownCounter < 0 && hasPomodoroStart){
+  if (countDownCounter < 0 && hasPomodoroStart) {
     clearInterval(pomodoroInterval);
     return;
-}
-let hour = Math.floor(countDownCounter / 60 / 60);
-let minutes = Math.floor(countDownCounter / 60);
-let seconds = countDownCounter % 60;
-// using ternary if statements
-COUNTER_DISPLAY.innerText = `${hour.toString().padStart(2,0)}:${minutes.toString().padStart(2,0)}:${seconds.toString().padStart(2,0)}`;
-return;
-}
+  }
+  let hour = Math.floor(countDownCounter / 60 / 60);
+  let minutes = Math.floor(countDownCounter / 60);
+  let seconds = countDownCounter % 60;
+  // using ternary if statements
+  COUNTER_DISPLAY.innerText = `${hour.toString().padStart(2, 0)}:${minutes
+    .toString()
+    .padStart(2, 0)}:${seconds.toString().padStart(2, 0)}`;
+  return;
+};
 
 const isMinuteInputValid = (minuteInput) => {
-    if(isNaN(minuteInput) || minuteInput < 1){
-        minuteInputError.innerText = MINUTE_ERROR;
-        console.error(MINUTE_ERROR);
-        return false;
-    }
-    return true;
-    
-}
+  if (isNaN(minuteInput) || minuteInput < 1) {
+    minuteInputError.innerText = MINUTE_ERROR;
+    console.error(MINUTE_ERROR);
+    return false;
+  }
+  return true;
+};
 
 const setTimerValue = (event) => {
-const MINUTE_VALUE = parseInt(event.target.value);
-    const isValid = isMinuteInputValid(MINUTE_VALUE);
-    if(isValid && !hasPomodoroStart){
-        countDownCounter = MINUTE_VALUE * 60;
-        CovertSecondsToTimeDisplay();
-    }
+  const minuteValue = parseInt(event.target.value);
+  const isValid = isMinuteInputValid(minuteValue);
+  if (isValid && !hasPomodoroStart) {
+    countDownCounter = minuteValue * 60;
+    CovertSecondsToTimeDisplay();
+  }
+};
 
-}
+// Set up
 SetPomodoroTimerValue();
-minuteInput.oninput = setTimerValue;
-document.getElementById('counterBtn').onclick = StartPomodoro;
-document.getElementById('restartBtn').onclick = Reset;
+minuteInputElement.oninput = setTimerValue;
+startStopBtnElement.onclick = StartPomodoro;
+resetBtnElement.onclick = Reset;
