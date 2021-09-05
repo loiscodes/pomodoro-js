@@ -1,37 +1,41 @@
 const COUNTER_DISPLAY = document.getElementById('counterDisplay');
 let countDownCounter = 20;
-let hasCounterBegan = false;
-let pausedCounter = true;
-let interval;
+let hasPomodoroStart = false;
+let isPomodoroCounterPaused = true;
+let pomodoroInterval;
 
-function reset(){
-    clearInterval(interval);
+const SetPomodoroTimerValue = () => {
+    countDownCounter = countDownCounter * 60;
+    covertSecondsToTimeDisplay();
+}
+
+const Reset = () => {
+    clearInterval(pomodoroInterval);
     countDownCounter = 20;
     covertSecondsToTimeDisplay();
 }
 
-function countDown(){
+const StartPomodoro = () => {
 // Toggle the counter
-    if(!hasCounterBegan){
-        hasCounterBegan = true;
+    if(!hasPomodoroStart){
+        hasPomodoroStart = true;
     }
-    pausedCounter = !pausedCounter;
-    if(!pausedCounter && hasCounterBegan){
-        interval = setInterval(()=>{
+    isPomodoroCounterPaused = !isPomodoroCounterPaused;
+    if(!isPomodoroCounterPaused && hasPomodoroStart){
+        pomodoroInterval = setInterval(()=>{
             countDownCounter--;
             covertSecondsToTimeDisplay();
         },1000);
     }else{
-        clearInterval(interval);
+        clearInterval(pomodoroInterval);
     }
 
 return;
 };
-// function startCounter(){
 
-function covertSecondsToTimeDisplay(){
-if(countDownCounter < 0 && hasCounterBegan){
-    clearInterval(interval);
+const CovertSecondsToTimeDisplay = () => {
+if(countDownCounter < 0 && hasPomodoroStart){
+    clearInterval(pomodoroInterval);
     return;
 }
 let hour = Math.floor(countDownCounter / 60 / 60);
@@ -42,21 +46,6 @@ COUNTER_DISPLAY.innerText = `${hour.toString().padStart(2,0)}:${minutes.toString
 return;
 }
 
-function isMinuteInputValid(minuteInput){
-    if(isNaN(minuteInput) || minuteInput < 1){
-        minuteInputError.innerText = MINUTE_ERROR;
-        console.error(MINUTE_ERROR);
-        return false;
-    }
-    return true;
-    
-}
-
-function setTimerValue(){
-        countDownCounter = countDownCounter * 60;
-        covertSecondsToTimeDisplay();
-}
-
-setTimerValue();
-document.getElementById('counterBtn').addEventListener('click',countDown);
-document.getElementById('restartBtn').addEventListener('click',reset);
+SetPomodoroTimerValue();
+document.getElementById('counterBtn').onclick = StartPomodoro;
+document.getElementById('restartBtn').onclick = Reset;
