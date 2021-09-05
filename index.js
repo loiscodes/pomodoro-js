@@ -1,18 +1,20 @@
 const COUNTER_DISPLAY = document.getElementById('counterDisplay');
-let countDownCounter = 20;
+const minuteInput = document.getElementById('minuteInput');
+const MINUTE_ERROR = 'Time is not valid';
+let countDownCounter = 0;
 let hasPomodoroStart = false;
 let isPomodoroCounterPaused = true;
 let pomodoroInterval;
 
 const SetPomodoroTimerValue = () => {
     countDownCounter = countDownCounter * 60;
-    covertSecondsToTimeDisplay();
+    CovertSecondsToTimeDisplay();
 }
 
 const Reset = () => {
     clearInterval(pomodoroInterval);
     countDownCounter = 20;
-    covertSecondsToTimeDisplay();
+    CovertSecondsToTimeDisplay();
 }
 
 const StartPomodoro = () => {
@@ -24,7 +26,7 @@ const StartPomodoro = () => {
     if(!isPomodoroCounterPaused && hasPomodoroStart){
         pomodoroInterval = setInterval(()=>{
             countDownCounter--;
-            covertSecondsToTimeDisplay();
+            CovertSecondsToTimeDisplay();
         },1000);
     }else{
         clearInterval(pomodoroInterval);
@@ -46,6 +48,26 @@ COUNTER_DISPLAY.innerText = `${hour.toString().padStart(2,0)}:${minutes.toString
 return;
 }
 
+const isMinuteInputValid = (minuteInput) => {
+    if(isNaN(minuteInput) || minuteInput < 1){
+        minuteInputError.innerText = MINUTE_ERROR;
+        console.error(MINUTE_ERROR);
+        return false;
+    }
+    return true;
+    
+}
+
+const setTimerValue = (event) => {
+const MINUTE_VALUE = parseInt(event.target.value);
+    const isValid = isMinuteInputValid(MINUTE_VALUE);
+    if(isValid && !hasPomodoroStart){
+        countDownCounter = MINUTE_VALUE * 60;
+        CovertSecondsToTimeDisplay();
+    }
+
+}
 SetPomodoroTimerValue();
+minuteInput.oninput = setTimerValue;
 document.getElementById('counterBtn').onclick = StartPomodoro;
 document.getElementById('restartBtn').onclick = Reset;
