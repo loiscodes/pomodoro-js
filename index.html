@@ -6,57 +6,33 @@
     <meta name="viewport" content="width=auto, initial-scale=1.0" />
     <title>Pomodoro App</title>
     <style>
-@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+      @import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
 
-      html, body{
+      html,
+      body {
         height: 100%;
         margin: auto 0;
-
-  font-family: "Roboto";
-      }
-      body{
-        background-color: #f8edeb;
+        font-family: "Roboto";
       }
 
-      .fromFocusToCoolDown{
-  animation: backgroundColorToCool 2s 0s linear alternate;
-  background:#D8E2DC;
-    }
+      #pomodoro-app.coolDown {
+        background: #d8e2dc;
+      }
 
-    .fromCoolDownToFocus{
-  animation: backgroundColorToFocus 2s 0s linear alternate;
-  background:#FFD7BA;
-    }
-    .fromCoolDownToCompletion{
-  animation: fromCoolDownToCompletion 2s 0s linear alternate;
-  background:#f8edeb;
-    }
-    .fromStartToFocus{
-  animation: fromStartToFocus 2s 0s linear alternate;
-  background:#FFD7BA;
-    }
-@keyframes backgroundColorToCool{
-  from   {background:#FFD7BA;}
-  to     {background:#D8E2DC;}
-}
-@keyframes fromCoolDownToFocus{
-  from   {background:#D8E2DC;}
-  to     {background:#FFD7BA;}
-}
-@keyframes fromCoolDownToCompletion{
-  from   {background:#D8E2DC;}
-  to     {background:#f8edeb;}
-}
-@keyframes fromStartToFocus{
-  from   {background:#f8edeb;}
-  to     {background:#FFD7BA;}
-}
-      div.pomodoro-app {
+      #pomodoro-app.focus {
+        background: #ffd7ba;
+      }
+      div#pomodoro-app {
         display: grid;
         justify-content: center;
         align-content: flex-start;
-        gap: .25rem;
+        gap: 0.25rem;
         min-height: 100%;
+        background-color: #f8edeb;
+        -webkit-transition: all 1s linear;
+        -moz-transition: all 1s linear;
+        -o-transition: all 1s linear;
+        transition: all 1s linear;
       }
       h1#counterHeader,
       h3#counterDisplay,
@@ -64,7 +40,7 @@
         grid-column-start: 1;
         grid-column-end: 4;
       }
-        h1#counterHeader,
+      h1#counterHeader,
       h3#counterDisplay {
         align-items: center;
         justify-content: center;
@@ -72,30 +48,29 @@
       }
       div#minuteInputError {
         height: 25px;
-        color: #EF476F;
+        color: #ef476f;
       }
       button {
-    border: none;
-    border-radius: .3rem;
-    background-color: #118AB2;
-    color: white;
-    padding: .5rem;
-    margin: 0px .25rem;
-}
+        border: none;
+        border-radius: 0.3rem;
+        background-color: #118ab2;
+        color: white;
+        padding: 0.5rem;
+        margin: 0px 0.25rem;
+      }
 
-input#minuteInput {
-    min-height: 1.57rem;
-}
-
+      input#minuteInput {
+        min-height: 1.57rem;
+      }
     </style>
   </head>
   <body>
-    <div class="pomodoro-app">
+    <div id="pomodoro-app">
       <h1 id="counterHeader">Pomodoro</h1>
       <h3 id="counterDisplay">00:00:00</h3>
 
       <div class="inputs">
-          <div>Every pomodoro will have a 5 minute cooldown</div>
+        <div>Every pomodoro will have a 5 minute cooldown</div>
         <label for="minuteInput">Minute(s):</label>
         <input type="number" id="minuteInput" name="minute" />
         <button id="addPomodoroTimeBtn">Add</button>
@@ -104,9 +79,7 @@ input#minuteInput {
       </div>
       <button id="startStopBtn">Start/Stop</button>
       <button id="resetBtn">Reset Counter</button>
-      <div class="listOfPomodoroTimers">
-
-      </div>
+      <div class="listOfPomodoroTimers"></div>
     </div>
 
     <script src="index.js" type="text/javascript"></script>

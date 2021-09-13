@@ -2,7 +2,7 @@ const MINUTE_ERROR = "Time is not valid";
 
 // Elements
 const counterDisplayElement = document.getElementById("counterDisplay");
-const pomodorAppElement = document.querySelector(".pomodoro-app");
+const pomodorAppElement = document.getElementById("pomodoro-app");
 const minuteInputElement = document.getElementById("minuteInput");
 const startStopBtnElement = document.getElementById("startStopBtn");
 const resetBtnElement = document.getElementById("resetBtn");
@@ -35,6 +35,7 @@ const StartPomodoro = () => {
   }
   isPomodoroCounterPaused = !isPomodoroCounterPaused;
   if (!isPomodoroCounterPaused && hasPomodoroStart) {
+    ChangeBackgroundColor("focus");
         pomodoroInterval = setInterval(() => {
             countDownCounter--;
             CovertSecondsToTimeDisplay();
@@ -49,9 +50,11 @@ const StartPomodoro = () => {
 
 const CovertSecondsToTimeDisplay = () => {
   if (countDownCounter < 0 && hasPomodoroStart) {
+    
     if(pomodoroList[currentPomodoro].isCoolDown === false){
         pomodoroList[currentPomodoro].isCoolDown = true;
         countDownCounter = pomodoroList[currentPomodoro].coolDownCounter * 60;
+        ChangeBackgroundColor("coolDown");
     }
     else{
         pomodoroList[currentPomodoro].isCompleted = true;
@@ -59,12 +62,16 @@ const CovertSecondsToTimeDisplay = () => {
         if(currentPomodoro === pomodoroList.length){
           hasPomodoroStart = false;
           clearInterval(pomodoroInterval);
+          ChangeBackgroundColor("");
       return;
       }
+      ChangeBackgroundColor("focus");
+      
         countDownCounter = pomodoroList[currentPomodoro].countDownCounter * 60;
     }
+
   }
-  ChangeBackgroundColor();
+  
   let hour = Math.floor(countDownCounter / 60 / 60);
   let minutes = Math.floor(countDownCounter / 60);
   let seconds = countDownCounter % 60;
@@ -117,22 +124,12 @@ const addPomodoroTimer = () => {
     listOfPomodoroTimersElement.innerText = ConvertPomodoroListToString();
 }
 
-const ChangeBackgroundColor = () => {
-  const colorChangingBackgroundList = ["fromStartToFocus", "fromCoolDownToCompletion", "fromFocusToCoolDown"]
-  if(hasPomodoroStart && currentPomodoro < pomodoroList.length && hasPomodoroStart && pomodoroList[currentPomodoro].isCoolDown === false && !pomodorAppElement.classList.contains("fromStartToFocus")){
-    pomodorAppElement.classList.add("fromStartToFocus");
-
-  }
-  if(!hasPomodoroStart && currentPomodoro > 0 && currentPomodoro === pomodoroList.length){
-    pomodorAppElement.classList.add("fromCoolDownToCompletion");
-
-  }else if(hasPomodoroStart && pomodoroList[currentPomodoro].isCoolDown === true && !pomodorAppElement.classList.contains("fromFocusToCoolDown")){
-    pomodorAppElement.classList.remove("fromStartToFocus", "fromStartToFocus");
-    pomodorAppElement.classList.add("fromFocusToCoolDown");
-  }
-  else{
-    // pomodorAppElement.classList = ["pomodoro-app", "fromStartToFocus"]
-  }
+const ChangeBackgroundColor = (className) => {
+  const classList = Array.from(pomodorAppElement.classList);
+  pomodorAppElement.classList.add(className);
+  console.log(pomodorAppElement);
+  pomodorAppElement.classList.remove(...classList);
+  
 }
 // Set up
 SetPomodoroTimerValue();
