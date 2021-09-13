@@ -32,10 +32,10 @@ const StartPomodoro = () => {
   // Toggle the counter
   if (!hasPomodoroStart) {
     hasPomodoroStart = true;
+    ChangeBackgroundColor("focus");
   }
   isPomodoroCounterPaused = !isPomodoroCounterPaused;
   if (!isPomodoroCounterPaused && hasPomodoroStart) {
-    ChangeBackgroundColor("focus");
         pomodoroInterval = setInterval(() => {
             countDownCounter--;
             CovertSecondsToTimeDisplay();
@@ -62,7 +62,7 @@ const CovertSecondsToTimeDisplay = () => {
         if(currentPomodoro === pomodoroList.length){
           hasPomodoroStart = false;
           clearInterval(pomodoroInterval);
-          ChangeBackgroundColor("");
+          ChangeBackgroundColor(null);
       return;
       }
       ChangeBackgroundColor("focus");
@@ -127,7 +127,6 @@ const addPomodoroTimer = () => {
 const ChangeBackgroundColor = (className) => {
   const classList = Array.from(pomodorAppElement.classList);
   pomodorAppElement.classList.add(className);
-  console.log(pomodorAppElement);
   pomodorAppElement.classList.remove(...classList);
   
 }
