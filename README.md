@@ -18,7 +18,7 @@ Goal: Create a basic pomodoro app using a number field. Get value from the field
     * **implement**:Conditional Operators
 * Working with the DOM
     * **implement**: Getting an element by id
-* Basic building blocks
+* Understanding Scope
     * Expressions
     * Statement blocks
     * Function blocks
