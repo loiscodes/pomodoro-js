@@ -1,9 +1,184 @@
-const MINUTE_ERROR = "Time is not valid";
+// Elements
+const pomodorAppElement = document.getElementById("pomodoro-app");
+const pomodoroCounterDisplayElement = document.getElementById("pomodoroCounterDisplay");
+const pomodoroFormElement = document.getElementsByClassName("pomorodoForm")[0];
+const hourInputElement = document.getElementById("hoursInputText");
+const minuteInputElement = document.getElementById("minutesInputText");
+const secondInputElement = document.getElementById("secondsInputText");
+const addCoolDownCounterElement = document.getElementById("addCoolDownCounter");
+const coolDownInMinutesElement = document.getElementById("coolDownInMinutes");
+//const dateTimeLocalInputElement = document.querySelector("input[type='datetime-local']");
+//pomodoroErrorList
+const pomodoroListOfErrorsElement = document.getElementById("pomodoroErrorList");
+const addPomodoroToListButton = document.getElementById("pomorodoForm-addBtn");
+const startOrPauseAPomodoroFromListButton = document.getElementById("pomorodoForm-StartPauseBtn");
+const coolDownInMinutesInputElement = document.getElementById("coolDownInMinutes");
+let pomodoroList = [];
+let pomodoroInterval;
+let hasPomodoroStart = false;
+const errorList = {
+  hour: "",
+  minute: "",
+  second: "",
+};
+let currentPomodoroId = 0;
+let currentPomodoroTimer = -1;
+let listOfErrors = "";
+let defaultPomodoroSettings = {
+  id: 0,
+  focusTimerInSeconds: 300,
+  pomodoroCompleted: false,
+  pomodoroDescription: "",
+  className: "focus",
+  isPaused: true,
+  cooldownPomodoro: {
+    coolDownSet: true,
+    cooldownCompleted: false,
+    className: "coolDown",
+    cooldownTimerInSeconds: 60,
+    isPaused: true,
+  }
+};
+// JS 1
+const CovertSecondsToTimeDisplay = (pomodoroTimerInSeconds) => {
+  let hour = Math.floor(pomodoroTimerInSeconds / 60 / 60);
+  let minutes = Math.floor(pomodoroTimerInSeconds / 60);
+  let seconds = pomodoroTimerInSeconds % 60;
+  // using ternary if statements
+  pomodoroCounterDisplayElement.innerText = `${hour.toString().padStart(2, 0)}:${minutes
+    .toString()
+    .padStart(2, 0)}:${seconds.toString().padStart(2, 0)}`;
+}
+// Start Pomodoro
+const StartPomodoro = () => {
+  if (!hasPomodoroStart) {
+    hasPomodoroStart = true;
+  }
+  // Check Status Of Pomodoro
+  pomodoroList[currentPomodoroId].isPaused = !pomodoroList[currentPomodoroId].isPaused;
+  if(pomodoroList[currentPomodoroId].isPaused === false){
+      pomodoroInterval = setInterval(() => {
+    currentPomodoroTimer--;
+    CheckAndUpdateStatusOfPomodoro();
+    CovertSecondsToTimeDisplay(currentPomodoroTimer);
+  }, 1000);
+  }else{
+    clearInterval(pomodoroInterval);
+  }
+
+}
+
+
+// Add Pomodoro
+const AddPomodoroTimerToList = () =>{
+const focusTimerInSeconds = ConvertTimeInputsToSeconds();
+const id = pomodoroList.length;
+pomodoroList.push({...defaultPomodoroSettings, id, focusTimerInSeconds });
+console.log(addCoolDownCounterElement.checked)
+  pomodoroList[id].cooldownPomodoro = addCoolDownCounterElement.checked ? {...defaultPomodoroSettings.cooldownPomodoro, cooldownTimerInSeconds: parseInt(coolDownInMinutesElement.value) } : null
+return;
+}
+
+const CheckAndUpdateStatusOfPomodoro = () => {
+// has currentTime completed?
+//is it a cooldown timer
+// Has the pomodoro started
+if (currentPomodoroTimer < 0 && hasPomodoroStart) {
+    
+  if(pomodoroList[currentPomodoroId].cooldownPomodoro?.coolDownSet && pomodoroList[currentPomodoroId].cooldownPomodoro?.cooldownCompleted === false){
+      pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownCompleted = true;
+      currentPomodoroTimer = pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownTimerInSeconds;
+      ChangeBackgroundColor(pomodoroList[currentPomodoroId].cooldownPomodoro.className);
+      return;
+  }
+  else{
+      pomodoroList[currentPomodoroId].isCompleted = true;
+      currentPomodoroId++;
+      if(currentPomodoroId === pomodoroList.length){
+        console.log("started")
+        hasPomodoroStart = false;
+        clearInterval(pomodoroInterval);
+    return;
+    }
+    ChangeBackgroundColor(pomodoroList[currentPomodoroId].className);
+    
+    currentPomodoroTimer = pomodoroList[currentPomodoroId].focusTimerInSeconds;
+  }
+}
+}
+
+//JS 3
+const ConvertTimeInputsToSeconds = () => {
+  const hour = parseInt(hourInputElement.value || 0) * 60 * 60;
+  const minute = parseInt(minuteInputElement.value || 0) * 60;
+  const second = parseInt(secondInputElement.value);
+  return hour + minute + second;
+}
+
+const ConvertCooldownTimeInputToSeconds = () => {
+  return parseInt(coolDownInMinutesElement.value) * 60;
+}
+
+// JS 8
+const CheckElementValidity = (event) => {
+  const {name, validity } = event.target;
+  if(validity.valid){
+    errorList[name] = "";
+  }else{
+    errorList[name] = `The ${name} input is not valid`;
+  }
+  SetCustomValidationForElement();
+  SetButtonsEnabledDisabledState(validity.valid);
+}
+
+const SetCustomValidationForElement = () => {
+  listOfErrors = Object.values(errorList).map((value) => `<div>${value}</div>`).join("");
+  pomodoroListOfErrorsElement.innerHTML = listOfErrors;
+}
+
+const SetButtonsEnabledDisabledState = (isValid) => {
+  addPomodoroToListButton.disabled = startOrPauseAPomodoroFromListButton.disabled = !isValid;
+}
+
+const HideShowCoolDownInputField = (event) => {
+const { checked } = event.target;
+  coolDownInMinutesInputElement.hidden = !checked;
+}
+
+const ChangeBackgroundColor = (className) => {
+  const classList = Array.from(pomodorAppElement.classList);
+  console.log("before",classList);
+  pomodorAppElement.classList.add(className);
+  pomodorAppElement.classList.remove(...classList);
+  console.log("after",pomodorAppElement.classList);
+  
+}
+
+// Set event listeners
+hourInputElement.addEventListener('input', CheckElementValidity);
+minuteInputElement.addEventListener('input', CheckElementValidity);
+secondInputElement.addEventListener('input', CheckElementValidity);
+addCoolDownCounterElement.addEventListener('change', HideShowCoolDownInputField);
+addPomodoroToListButton.addEventListener('click', (event)=>{
+  event.stopPropagation();
+  AddPomodoroTimerToList();
+  console.log(pomodoroList);
+});
+
+startOrPauseAPomodoroFromListButton.addEventListener('click', (event)=>{
+  event.stopPropagation();
+  AddPomodoroTimerToList();
+  StartPomodoro();
+})
+
+// TODOs
+/*
+1. Add styling for 
+*/
+
+/* const MINUTE_ERROR = "Time is not valid";
 
 // Elements
-const counterDisplayElement = document.getElementById("counterDisplay");
-const pomodorAppElement = document.getElementById("pomodoro-app");
-const minuteInputElement = document.getElementById("minuteInput");
 const startStopBtnElement = document.getElementById("startStopBtn");
 const resetBtnElement = document.getElementById("resetBtn");
 const addPomodoroBtnElement = document.getElementById("addPomodoroTimeBtn");
@@ -12,6 +187,17 @@ const listOfPomodoroTimersElement = document.querySelector(".listOfPomodoroTimer
 let countDownCounter = 0;
 let hasPomodoroStart = false;
 let isPomodoroCounterPaused = true;
+let defaultPomodoroSettings = {
+  focusTimer: 1,
+  pomodoroCompleted: false,
+  className: "focus",
+  cooldownPomodoro: {
+    cooldownCompleted: false,
+    className: "coolDown",
+    cooldownTimer: 1,
+  }
+};
+
 let pomodoroList = [];
 let currentPomodoro = 0;
 let pomodoroInterval,backgroundColorInterval;
@@ -108,19 +294,22 @@ const ConvertPomodoroListToString = () => {
     }
     return str;
 }
+
+const ConvertTimeInputToMinutes = () => {
+const value = timerInputElement.value;
+const time = value.split(":");
+const hours = parseInt(time[0]) * 60 * 60;
+const minutes = parseInt(time[2]) * 60;
+const seconds = hours + minutes;
+return value.length === 2 ? seconds : seconds + parseInt(value[3]);
+}
 const addPomodoroTimer = () => {
-  const minuteValue = parseInt(minuteInputElement.value);
+  const minuteValue = ConvertTimeInputToMinutes();
     const isValid = isMinuteInputValid(minuteValue);
     
     if(isValid){
-        pomodoroList.push({
-            countDownCounter: minuteValue,
-            coolDownCounter: 1,
-            isCoolDown: false,
-            isCompleted: false
-        })
+        pomodoroList.push({...defaultPomodoroSettings, focusTimer: minuteValue})
     }
-    console.log(pomodoroList);
     listOfPomodoroTimersElement.innerText = ConvertPomodoroListToString();
 }
 
@@ -132,7 +321,8 @@ const ChangeBackgroundColor = (className) => {
 }
 // Set up
 SetPomodoroTimerValue();
-minuteInputElement.oninput = setTimerValue;
+timerInputElement.oninput = setTimerValue;
 startStopBtnElement.onclick = StartPomodoro;
 resetBtnElement.onclick = Reset;
 addPomodoroBtnElement.onclick = addPomodoroTimer;
+ */
