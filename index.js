@@ -22,7 +22,7 @@ const errorList = {
   second: "",
 };
 let currentPomodoroId = 0;
-let currentPomodoroTimer = -1;
+let currentPomodoroTimer = 0;
 let listOfErrors = "";
 let defaultPomodoroSettings = {
   id: 0,
@@ -40,10 +40,10 @@ let defaultPomodoroSettings = {
   }
 };
 // JS 1
-const CovertSecondsToTimeDisplay = (pomodoroTimerInSeconds) => {
-  let hour = Math.floor(pomodoroTimerInSeconds / 60 / 60);
-  let minutes = Math.floor(pomodoroTimerInSeconds / 60);
-  let seconds = pomodoroTimerInSeconds % 60;
+const CovertSecondsToTimeDisplay = () => {
+  let hour = Math.floor(currentPomodoroTimer / 60 / 60);
+  let minutes = Math.floor(currentPomodoroTimer / 60);
+  let seconds = currentPomodoroTimer % 60;
   // using ternary if statements
   pomodoroCounterDisplayElement.innerText = `${hour.toString().padStart(2, 0)}:${minutes
     .toString()
@@ -53,29 +53,33 @@ const CovertSecondsToTimeDisplay = (pomodoroTimerInSeconds) => {
 const StartPomodoro = () => {
   if (!hasPomodoroStart) {
     hasPomodoroStart = true;
+    ChangeBackgroundColor(pomodoroList[currentPomodoroId].className);
   }
   // Check Status Of Pomodoro
-  pomodoroList[currentPomodoroId].isPaused = !pomodoroList[currentPomodoroId].isPaused;
-  if(pomodoroList[currentPomodoroId].isPaused === false){
+  // pomodoroList[currentPomodoroId].isPaused = !pomodoroList[currentPomodoroId].isPaused;
+  // if(pomodoroList[currentPomodoroId].isPaused === false){
       pomodoroInterval = setInterval(() => {
-    currentPomodoroTimer--;
-    CheckAndUpdateStatusOfPomodoro();
-    CovertSecondsToTimeDisplay(currentPomodoroTimer);
+        currentPomodoroTimer--;
+        CheckAndUpdateStatusOfPomodoro();
+        CovertSecondsToTimeDisplay();
   }, 1000);
-  }else{
-    clearInterval(pomodoroInterval);
-  }
+  // }else{
+  //   clearInterval(pomodoroInterval);
+  // }
 
 }
 
+const SetPomodoroTimerValue = () => {
+  currentPomodoroTimer = pomodoroList[0].focusTimerInSeconds;
+  CovertSecondsToTimeDisplay();
+};
 
 // Add Pomodoro
 const AddPomodoroTimerToList = () =>{
 const focusTimerInSeconds = ConvertTimeInputsToSeconds();
 const id = pomodoroList.length;
 pomodoroList.push({...defaultPomodoroSettings, id, focusTimerInSeconds });
-console.log(addCoolDownCounterElement.checked)
-  pomodoroList[id].cooldownPomodoro = addCoolDownCounterElement.checked ? {...defaultPomodoroSettings.cooldownPomodoro, cooldownTimerInSeconds: parseInt(coolDownInMinutesElement.value) } : null
+  pomodoroList[id].cooldownPomodoro = addCoolDownCounterElement.checked ? {...defaultPomodoroSettings.cooldownPomodoro, cooldownTimerInSeconds: ConvertCooldownTimeInputToSeconds() } : null
 return;
 }
 
@@ -84,20 +88,21 @@ const CheckAndUpdateStatusOfPomodoro = () => {
 //is it a cooldown timer
 // Has the pomodoro started
 if (currentPomodoroTimer < 0 && hasPomodoroStart) {
-    
   if(pomodoroList[currentPomodoroId].cooldownPomodoro?.coolDownSet && pomodoroList[currentPomodoroId].cooldownPomodoro?.cooldownCompleted === false){
-      pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownCompleted = true;
-      currentPomodoroTimer = pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownTimerInSeconds;
-      ChangeBackgroundColor(pomodoroList[currentPomodoroId].cooldownPomodoro.className);
-      return;
+    pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownCompleted = true;
+    currentPomodoroTimer = pomodoroList[currentPomodoroId].cooldownPomodoro.cooldownTimerInSeconds;
+    ChangeBackgroundColor(pomodoroList[currentPomodoroId].cooldownPomodoro.className);
+    return;
   }
   else{
-      pomodoroList[currentPomodoroId].isCompleted = true;
-      currentPomodoroId++;
-      if(currentPomodoroId === pomodoroList.length){
-        console.log("started")
-        hasPomodoroStart = false;
-        clearInterval(pomodoroInterval);
+    currentPomodoroTimer = 0;
+    pomodoroList[currentPomodoroId].pomodoroCompleted = true;
+    currentPomodoroId++;
+    if(currentPomodoroId === pomodoroList.length){
+      hasPomodoroStart = false;
+      clearInterval(pomodoroInterval);
+      ChangeBackgroundColor(null);
+
     return;
     }
     ChangeBackgroundColor(pomodoroList[currentPomodoroId].className);
@@ -147,10 +152,8 @@ const { checked } = event.target;
 
 const ChangeBackgroundColor = (className) => {
   const classList = Array.from(pomodorAppElement.classList);
-  console.log("before",classList);
-  pomodorAppElement.classList.add(className);
   pomodorAppElement.classList.remove(...classList);
-  console.log("after",pomodorAppElement.classList);
+  pomodorAppElement.classList.add(className);
   
 }
 
@@ -162,12 +165,11 @@ addCoolDownCounterElement.addEventListener('change', HideShowCoolDownInputField)
 addPomodoroToListButton.addEventListener('click', (event)=>{
   event.stopPropagation();
   AddPomodoroTimerToList();
-  console.log(pomodoroList);
 });
 
 startOrPauseAPomodoroFromListButton.addEventListener('click', (event)=>{
   event.stopPropagation();
-  AddPomodoroTimerToList();
+  SetPomodoroTimerValue();
   StartPomodoro();
 })
 
